@@ -1,62 +1,61 @@
-import { Text, View, Image, ScrollView } from 'react-native';
-import data from './app.json'
-import styles from './App.styles.js'
+import React, { useState } from 'react';
+import { Text, View, Image, ScrollView, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
+import { useFonts } from 'expo-font';
+import data from './app.json';
+import styles from './App.styles.js';
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
+    'Poppins-Light': require('./assets/fonts/Poppins-Light.ttf'),
+    'Poppins-Bold-Italic': require('./assets/fonts/Poppins-BoldItalic.ttf'),
+  });
+
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  if (!fontsLoaded) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
+  const dataArray = Array.isArray(data) ? data : Object.values(data);
+  if (!dataArray || dataArray.length === 0) {
+    return <Text>No data available</Text>;
+  }
+
   return (
-    <ScrollView>
-      {data.map((data) => {
-        return(
-          <View style={styles.container} key={data.nama}>
-            <View style={styles.card}>
-              <Image
-                source={{
-                  uri: data.foto,
-                }}
-                style={styles.avatar}
-                />
-                <View style={styles.boldText}>
-                  <Text style={styles.boldText}>{data.nama}</Text>
-                  <Text>{data.email}</Text>
+    <View style={styles.container}>
+      <Text style={styles.headerText}>Data Mahasiswa</Text>
+      <ScrollView style={styles.scrollView}>
+        {dataArray.map((item, index) => {
+          if (!item.email || !item.foto) {
+            return null;
+          }
+
+          return (
+            <TouchableWithoutFeedback
+              key={item.nama}
+              onPressIn={() => setHoveredIndex(index)}
+              onPressOut={() => setHoveredIndex(null)}
+            >
+              <View style={styles.container}>
+                <View style={[
+                  styles.card,
+                  hoveredIndex === index && styles.cardHovered
+                ]}>
+                  <Image
+                    source={{ uri: item.foto }}
+                    style={styles.avatar}
+                  />
+                  <View>
+                    <Text style={styles.boldText}>{item.nama}</Text>
+                    <Text style={styles.description}>{item.email}</Text>
+                  </View>
                 </View>
-            </View>
-          </View>
-        );
-      })}
-    </ScrollView>
+              </View>
+            </TouchableWithoutFeedback>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     backgroundColor: '#fff',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     padding: 5,
-//     display: 'flex',
-//   },
-//   card: {
-//     borderWidth: 1,
-//     borderColor: 'black',
-//     borderRadius: 8,
-//     display: 'flex',
-//     flexDirection: 'row',
-//     alignItems: "center",
-//     padding: 8,
-//     width: 325,
-//     gap: 8,
-//   },
-//   avatar:{
-//     width: 75,
-//     heigh: 75,
-//     borderRadius: 999,
-//    },
-//    boldText:{
-//     fontWeight: 'bold',
-//    },
-//    description:{
-//     width: 'fit-content',
-//     display: 'flex',
-//     gap: 2,
-//     },
-// });

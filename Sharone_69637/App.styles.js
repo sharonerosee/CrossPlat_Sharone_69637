@@ -2,35 +2,52 @@ import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    flex: 1,
+    backgroundColor: '#ADD8E6',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     padding: 5,
-    display: 'flex',
   },
   card: {
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 8,
-    display: 'flex',
     flexDirection: 'row',
     alignItems: "center",
     padding: 8,
     width: 325,
     gap: 8,
+    backgroundColor: '#F4C2C2',
+    marginBottom: 10,
+    transition: 'transform 0.2s ease',
+  },
+  cardHovered: {
+    transform: [{ scale: 1.05 }], 
+    backgroundColor: '#CDEBC5',
   },
   avatar: {
     width: 75,
-    height: 75,  // Perbaikan typo
+    height: 75,
     borderRadius: 999,
   },
   boldText: {
     fontWeight: 'bold',
+    fontFamily: 'Poppins-Bold',
   },
   description: {
-    width: 'fit-content',
-    display: 'flex',
-    gap: 2,
+    fontFamily: 'Poppins-Light',
+  },
+  headerText: {
+    fontFamily: 'Poppins-Bold-Italic',
+    fontSize: 24,
+    marginBottom: 20,
+    marginTop: 50,
+    backgroundColor: '#E6E6FA',
+    padding: 3,
+    borderRadius: 15,
+  },
+  scrollView: {
+    paddingBottom: 20,
   },
 });
 
