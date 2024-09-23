@@ -1,62 +1,62 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
+import { Text, View, Image, ScrollView } from 'react-native';
 import data from './app.json'
+import styles from './App.styles.js'
 
 export default function App() {
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Data Mahasiswa</Text>
-      {data.map((data, index) =>
-        <View key={index} style={styles.card}>
-          <Image source={{ uri: data.foto }} style={styles.image} />
-          <Text style={styles.name}>{data.nama}</Text>
-          <Text style={styles.email}>{data.email}</Text>
-        </View>       
-    )}
+    <ScrollView>
+      {data.map((data) => {
+        return(
+          <View style={styles.container} key={data.nama}>
+            <View style={styles.card}>
+              <Image
+                source={{
+                  uri: data.foto,
+                }}
+                style={styles.avatar}
+                />
+                <View style={styles.boldText}>
+                  <Text style={styles.boldText}>{data.nama}</Text>
+                  <Text>{data.email}</Text>
+                </View>
+            </View>
+          </View>
+        );
+      })}
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container:{
-    flex: 10,
-    backgroundColor: '#fff',
-    paddingVertical: 20,
-  },
-  header:{
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: "center",
-    marginBottom: 20,
-    marginTop: 10,
-  },
-  card: {
-    alignItems: "center",
-    marginBottom: 20,
-    padding: 10,
-    marginHorizontal: 20,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    },
-  name:{
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: "center",
-  },
-  email:{
-    fontSize: 16,
-    fontStyle: 'italic',
-    textAlign: "center",
-  },
-  image:{
-    width: 200,
-    height: 200,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     backgroundColor: '#fff',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     padding: 5,
+//     display: 'flex',
+//   },
+//   card: {
+//     borderWidth: 1,
+//     borderColor: 'black',
+//     borderRadius: 8,
+//     display: 'flex',
+//     flexDirection: 'row',
+//     alignItems: "center",
+//     padding: 8,
+//     width: 325,
+//     gap: 8,
+//   },
+//   avatar:{
+//     width: 75,
+//     heigh: 75,
+//     borderRadius: 999,
+//    },
+//    boldText:{
+//     fontWeight: 'bold',
+//    },
+//    description:{
+//     width: 'fit-content',
+//     display: 'flex',
+//     gap: 2,
+//     },
+// });
