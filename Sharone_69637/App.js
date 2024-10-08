@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text, View, Image, ScrollView, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
 import { useFonts } from 'expo-font';
-import data from './app.json';
+import data from './data.json';
 import styles from './App.styles.js';
 
 export default function App() {
