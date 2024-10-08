@@ -7,6 +7,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     padding: 5,
+    paddingBottom: 10
   },
   card: {
     borderWidth: 1,
@@ -49,6 +50,9 @@ const styles = StyleSheet.create({
   scrollView: {
     paddingBottom: 20,
   },
+  userList: {
+    marginBottom: 15,
+},
 });
 
 export default styles;
