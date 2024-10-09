@@ -1,53 +1,15 @@
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-// import Counter from "./Counter";
-// import Profile from './Profile';
+import {InputNIM, InputNama} from './Input';
 import { useState } from "react";
 
-const InputNama = ({nama, onChangeText}) => {
-  console.log(nama);
-  return (
-    <View>
-      <TextInput
-        placeholder='Masukkan nama disini'
-        style={{
-          borderColor: 'black',
-          borderWidth: 1,
-          padding: 10,
-          borderRadius: 8,
-        }}
-        onChangeText={onChangeText}
-        value={nama}
-        />
-    </View>
-  );
-};
-
-const InputNIM = ({nim, onChangeText}) => {
-  console.log(nim);
-  return (
-    <View>
-      <TextInput
-        placeholder='Masukkan nim disini'
-        style={{
-          borderColor: 'black',
-          borderWidth: 1,
-          padding: 10,
-          borderRadius: 8,
-        }}
-        onChangeText={onChangeText}
-        value={nim}
-        />
-    </View>
-  );
-};
 
 export default function App(){
-  const [nama, setNama] = useState("");
+  const [nama, setNama] = useState("Nama Mahasiswa");
   const handleChangeMyName = (value) => {
     setNama(value);
   };
 
-  const [nim, setNIM] = useState("");
+  const [nim, setNIM] = useState("NIM Mahasiswa");
   const handleChangeMyNIM = (value) => {
     setNIM(value);
   };
