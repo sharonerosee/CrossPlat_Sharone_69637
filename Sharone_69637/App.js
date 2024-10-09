@@ -4,12 +4,12 @@ import { useState } from "react";
 
 
 export default function App(){
-  const [nama, setNama] = useState("Nama Mahasiswa");
+  const [nama, setNama] = useState("");
   const handleChangeMyName = (value) => {
     setNama(value);
   };
 
-  const [nim, setNIM] = useState("NIM Mahasiswa");
+  const [nim, setNIM] = useState("");
   const handleChangeMyNIM = (value) => {
     setNIM(value);
   };
