@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Email from './src/pages/Email';
 import HomeScreen from './src/pages/HomeScreen';
 import Profile from './src/pages/Profile';
-import UserList from './src/pages/Profile';
+import UserList from './src/pages/UserList';
 
 const Stack = createNativeStackNavigator();
 
