@@ -3,7 +3,6 @@ import {
   Animated,
   Button,
   View,
-  Text,
   Image,
   Alert,
   StyleSheet,
@@ -27,7 +26,7 @@ const App = () => {
       }
   
       const pickerResult = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.IMAGES, // Huruf besar dan benar
+        mediaTypes: ImagePicker.MediaTypeOptions.IMAGES, 
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
@@ -58,7 +57,7 @@ const App = () => {
       }
   
       const cameraResult = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.IMAGES, // Huruf besar dan benar
+        mediaTypes: ImagePicker.MediaTypeOptions.IMAGES,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
@@ -171,9 +170,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 20,
     textAlign: "center",
-    textShadowColor: "#000000", // Shadow color
-    textShadowOffset: { width: 2, height: 2 }, // Shadow position
-    textShadowRadius: 3, // Shadow blur radius
+    textShadowColor: "#000000", 
+    textShadowOffset: { width: 2, height: 2 }, 
+    textShadowRadius: 3, 
     fontWeight: "bold",
   },
   buttonContainer: {
