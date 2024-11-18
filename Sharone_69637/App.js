@@ -1,10 +1,14 @@
-import { PermissionsAndroid, StyleSheet, Text, TextInput, View } from 'react-native';
-import Counter from "./Counter";
-import Profile from './Profile';
-import { useState } from "react";
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import React, { useState } from "react";
+import {
+  PermissionsAndroid,
+  StyleSheet,
+  Text,
+  View,
+  Button,
+} from "react-native";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 
-export default function App() {
+const App = () => {
   const [uri, setUri] = useState("");
 
   const openImageLibrary = () => {
@@ -40,7 +44,7 @@ export default function App() {
           message: "This app needs access to your camera to take photos.",
           buttonNeutral: "Ask Me Later",
           buttonPositive: "OK",
-          buttonNegative: "Cancel"
+          buttonNegative: "Cancel",
         }
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -65,11 +69,24 @@ export default function App() {
     } else {
       console.log("No assets found in the response");
     }
-  }
+  };
 
-  // return (
-  //   <View style={styles.container}>
-  //     {/* Your UI components here */}
-  //   </View>
-  // );
+  return (
+    <View style={styles.container}>
+      <Button title="Open Camera" onPress={requestCameraPermission} />
+      <Button title="Open Image Library" onPress={openImageLibrary} />
+      {uri ? <Text>Image URI: {uri}</Text> : null}
+    </View>
+  );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+});
+
+export default App;
