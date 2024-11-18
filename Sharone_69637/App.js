@@ -1,60 +1,75 @@
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { PermissionsAndroid, StyleSheet, Text, TextInput, View } from 'react-native';
 import Counter from "./Counter";
 import Profile from './Profile';
 import { useState } from "react";
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 export default function App() {
-  const [count, setCount] = useState(0);
-  const [nama, setNama] = useState('');
-  const [showProfile, setShowProfile] = useState(false);
+  const [uri, setUri] = useState("");
 
-  const handleIncrement = () => {
-    setCount(count+1);
-  };
-  
-  const handleDecrement = () => {
-    setCount(count-1);
-  };
-
-  const handlePassValue = () => {
-    setShowProfile(true);
+  const openImageLibrary = () => {
+    launchImageLibrary(
+      {
+        mediaType: "photo",
+        includeBase64: false,
+        maxHeight: 2000,
+        maxWidth: 2000,
+      },
+      handleResponse
+    );
   };
 
-  return(
-    <View style={styles.container}>
-      {showProfile && <Profile nama={nama} umur={count}/>}
-      <Counter
-       value={count}
-       handleDecrement={handleDecrement}
-       handleIncrement={handleIncrement}
-       handlePassValue={handlePassValue}
-      />
-      <TextInput 
-      style={styles.input}
-      placeholder="Input your name here"
-      value={nama}
-      onChangeText={setNama}
-      />
-    </View>
-  );
-}
+  const handleCameraLaunch = () => {
+    launchCamera(
+      {
+        mediaType: "photo",
+        includeBase64: false,
+        maxHeight: 2000,
+        maxWidth: 2000,
+      },
+      handleResponse
+    );
+  };
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    padding: 20,
-  },
-  input:{
-    borderWidth: 1,
-    borderColor: '#000',
-    padding: 10,
-    width: '80%',
-    marginVertical: 10,
-    borderRadius: 5,
-    textAlign: 'center',
-  },
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: "Camera Permission",
+          message: "This app needs access to your camera to take photos.",
+          buttonNeutral: "Ask Me Later",
+          buttonPositive: "OK",
+          buttonNegative: "Cancel"
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("Camera permission granted");
+        handleCameraLaunch();
+      } else {
+        console.log("Camera permission denied");
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
 
-});
+  const handleResponse = (response) => {
+    if (response.didCancel) {
+      console.log("User cancelled image picker");
+    } else if (response.errorCode) {
+      console.log("Image picker error: ", response.errorMessage);
+    } else if (response.assets && response.assets.length > 0) {
+      const imageUri = response.assets[0].uri;
+      setUri(imageUri);
+    } else {
+      console.log("No assets found in the response");
+    }
+  }
+
+  // return (
+  //   <View style={styles.container}>
+  //     {/* Your UI components here */}
+  //   </View>
+  // );
+};
