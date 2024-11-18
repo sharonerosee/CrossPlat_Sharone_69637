@@ -1,81 +1,159 @@
-import React, { useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
-  PermissionsAndroid,
-  StyleSheet,
-  Text,
-  View,
+  Animated,
   Button,
+  View,
+  Text,
+  Image,
+  Alert,
+  StyleSheet,
+  StatusBar,
 } from "react-native";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import * as ImagePicker from "expo-image-picker";
+import * as MediaLibrary from "expo-media-library";
 
 const App = () => {
-  const [uri, setUri] = useState("");
+  const [imageUri, setImageUri] = useState(null);
 
-  const openImageLibrary = () => {
-    launchImageLibrary(
-      {
-        mediaType: "photo",
-        includeBase64: false,
-        maxHeight: 2000,
-        maxWidth: 2000,
-      },
-      handleResponse
-    );
-  };
-
-  const handleCameraLaunch = () => {
-    launchCamera(
-      {
-        mediaType: "photo",
-        includeBase64: false,
-        maxHeight: 2000,
-        maxWidth: 2000,
-      },
-      handleResponse
-    );
-  };
-
-  const requestCameraPermission = async () => {
+  const pickImageFromGallery = async () => {
     try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: "Camera Permission",
-          message: "This app needs access to your camera to take photos.",
-          buttonNeutral: "Ask Me Later",
-          buttonPositive: "OK",
-          buttonNegative: "Cancel",
-        }
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log("Camera permission granted");
-        handleCameraLaunch();
-      } else {
-        console.log("Camera permission denied");
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          "Permission Denied",
+          "Gallery access is required to select an image."
+        );
+        return;
       }
-    } catch (err) {
-      console.warn(err);
+  
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.IMAGES, // Huruf besar dan benar
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      if (!pickerResult.canceled) {
+        const selectedUri = pickerResult.assets?.[0]?.uri;
+        if (selectedUri) {
+          setImageUri(selectedUri);
+          console.log("Gallery image selected:", selectedUri);
+        }
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+      Alert.alert("Error", "Failed to open gallery.");
+    }
+  };
+  
+  const captureImageWithCamera = async () => {
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          "Permission Denied",
+          "Camera access is required to capture an image."
+        );
+        return;
+      }
+  
+      const cameraResult = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.IMAGES, // Huruf besar dan benar
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      if (!cameraResult.canceled) {
+        const capturedUri = cameraResult.assets?.[0]?.uri;
+        if (capturedUri) {
+          setImageUri(capturedUri);
+          console.log("Camera image captured:", capturedUri);
+        }
+      }
+    } catch (error) {
+      console.error("Error capturing image:", error);
+      Alert.alert("Error", "Failed to open camera.");
+    }
+  };
+  
+
+  const saveSelectedImage = async () => {
+    if (!imageUri) {
+      Alert.alert("No Image", "Please select or capture an image first.");
+      return;
+    }
+
+    try {
+      const permission = await MediaLibrary.requestPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          "Permission Denied",
+          "Media library access is required to save images."
+        );
+        return;
+      }
+
+      await MediaLibrary.createAssetAsync(imageUri);
+      Alert.alert("Success", "Image successfully saved!");
+      console.log("Saved image URI:", imageUri);
+    } catch (error) {
+      console.error("Error saving image:", error);
+      Alert.alert("Error", "Failed to save the image.");
     }
   };
 
-  const handleResponse = (response) => {
-    if (response.didCancel) {
-      console.log("User cancelled image picker");
-    } else if (response.errorCode) {
-      console.log("Image picker error: ", response.errorMessage);
-    } else if (response.assets && response.assets.length > 0) {
-      const imageUri = response.assets[0].uri;
-      setUri(imageUri);
-    } else {
-      console.log("No assets found in the response");
-    }
-  };
+  const floatAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnimation, {
+          toValue: -10,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnimation, {
+          toValue: 10,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [floatAnimation]);
 
   return (
     <View style={styles.container}>
-      <Button title="Open Camera" onPress={requestCameraPermission} />
-      <Button title="Open Image Library" onPress={openImageLibrary} />
-      {uri ? <Text>Image URI: {uri}</Text> : null}
+      <StatusBar barStyle="light-content" />
+      <Animated.Text
+        style={[
+          styles.floatingText,
+          {
+            transform: [{ translateY: floatAnimation }],
+          },
+        ]}
+      >
+        Sharone Angelica J - 00000069637
+      </Animated.Text>
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Select from Gallery"
+          onPress={pickImageFromGallery}
+          color="#1E90FF"
+        />
+        <Button
+          title="Take a Photo"
+          onPress={captureImageWithCamera}
+          color="#1E90FF"
+        />
+        <Button title="Save Image" onPress={saveSelectedImage} color="#1E90FF" />
+      </View>
+      {imageUri && (
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.imagePreview}
+        />
+      )}
     </View>
   );
 };
@@ -83,9 +161,30 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#121212",
     alignItems: "center",
-    padding: 16,
+    justifyContent: "center",
+    padding: 20,
+  },
+  floatingText: {
+    color: "#ffffff",
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: "center",
+    textShadowColor: "#000000", // Shadow color
+    textShadowOffset: { width: 2, height: 2 }, // Shadow position
+    textShadowRadius: 3, // Shadow blur radius
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    width: "100%",
+    marginBottom: 20,
+  },
+  imagePreview: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+    marginTop: 20,
   },
 });
 
