@@ -49,6 +49,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "newArchEnabled": true
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, View, Text, Image, Alert, Platform } from "react-native";
+import { Button, View, Text, Image, Alert, Platform, StyleSheet, TouchableOpacity } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
@@ -123,7 +123,6 @@ export default function App() {
     const fileName = "location_data.txt";
 
     try {
-      // Minta izin akses ke penyimpanan eksternal di Android
       if (Platform.OS === "android") {
         const { status } = await MediaLibrary.requestPermissionsAsync();
         if (status !== "granted") {
@@ -132,16 +131,13 @@ export default function App() {
         }
       }
 
-      // Tentukan lokasi file di penyimpanan eksternal Android (Download Directory)
       const downloadDir = FileSystem.documentDirectory;
       const fileUri = `${downloadDir}${fileName}`;
 
-      // Menyimpan file ke penyimpanan eksternal (gunakan MediaLibrary jika ingin)
       await FileSystem.writeAsStringAsync(fileUri, fileContent, {
         encoding: FileSystem.EncodingType.UTF8,
       });
 
-      // Tampilkan alert dengan lokasi file
       Alert.alert("File Saved", `File saved at: ${fileUri}`);
       console.log("File saved to:", fileUri);
     } catch (error) {
@@ -151,22 +147,32 @@ export default function App() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Edwin Fedora Lolo - 00000069568</Text>
-      <Button title="Open Gallery" onPress={openImagePicker} />
-      <Button title="Open Camera" onPress={handleCameraLaunch} />
-      <Button title="Save Image" onPress={saveImage} />
+    <View style={styles.container}>
+      <Text style={styles.title}>Sharone Angelica Jovans - 00000069637</Text>
+      <TouchableOpacity style={styles.button} onPress={openImagePicker}>
+        <Text style={styles.buttonText}>Open Gallery</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleCameraLaunch}>
+        <Text style={styles.buttonText}>Open Camera</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={saveImage}>
+        <Text style={styles.buttonText}>Save Image</Text>
+      </TouchableOpacity>
       {uri ? (
         <Image
           source={{ uri }}
-          style={{ width: 200, height: 200, marginTop: 20 }}
+          style={styles.image}
         />
       ) : null}
-      <Button title="Get Location" onPress={getLocation} />
-      <Button title="Save to File" onPress={saveToFile} />
+      <TouchableOpacity style={styles.button} onPress={getLocation}>
+        <Text style={styles.buttonText}>Get Location</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={saveToFile}>
+        <Text style={styles.buttonText}>Save to File</Text>
+      </TouchableOpacity>
 
       {latestLocation && (
-        <Text style={{ marginTop: 20 }}>
+        <Text style={styles.locationText}>
           Latest Location: {"\n"}
           Latitude: {latestLocation.latitude} {"\n"}
           Longitude: {latestLocation.longitude} {"\n"}
@@ -176,3 +182,43 @@ export default function App() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FDE2E4",
+    padding: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#C8553D",
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: "#FAD4D8",
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 10,
+    width: "80%",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#C8553D",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginTop: 20,
+    borderRadius: 10,
+  },
+  locationText: {
+    marginTop: 20,
+    color: "#C8553D",
+    textAlign: "center",
+  },
+});
