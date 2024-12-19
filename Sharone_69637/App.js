@@ -1,191 +1,178 @@
-import React, { useRef, useEffect, useState } from "react";
-import {
-  Animated,
-  Button,
-  View,
-  Text,
-  Image,
-  Alert,
-  StyleSheet,
-  StatusBar,
-} from "react-native";
+import React, { useState } from "react";
+import { Button, View, Text, Image, Alert, Platform } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
+import * as Location from "expo-location";
+import * as FileSystem from "expo-file-system";
 
-const App = () => {
-  const [imageUri, setImageUri] = useState(null);
+export default function App() {
+  const [uri, setUri] = useState("");
+  const [locationData, setLocationData] = useState([]);
+  const [latestLocation, setLatestLocation] = useState(null);
 
-  const pickImageFromGallery = async () => {
-    try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) {
-        Alert.alert(
-          "Permission Denied",
-          "Gallery access is required to select an image."
-        );
-        return;
-      }
-  
-      const pickerResult = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.IMAGES, // Huruf besar dan benar
+  const openImagePicker = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setUri(result.assets[0].uri);
+      console.log("Image selected from gallery:", result.assets[0].uri);
+    }
+  };
+
+  const handleCameraLaunch = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
       });
-  
-      if (!pickerResult.canceled) {
-        const selectedUri = pickerResult.assets?.[0]?.uri;
-        if (selectedUri) {
-          setImageUri(selectedUri);
-          console.log("Gallery image selected:", selectedUri);
-        }
-      }
-    } catch (error) {
-      console.error("Error picking image:", error);
-      Alert.alert("Error", "Failed to open gallery.");
-    }
-  };
-  
-  const captureImageWithCamera = async () => {
-    try {
-      const permission = await ImagePicker.requestCameraPermissionsAsync();
-      if (!permission.granted) {
-        Alert.alert(
-          "Permission Denied",
-          "Camera access is required to capture an image."
-        );
-        return;
-      }
-  
-      const cameraResult = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.IMAGES, // Huruf besar dan benar
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-  
-      if (!cameraResult.canceled) {
-        const capturedUri = cameraResult.assets?.[0]?.uri;
-        if (capturedUri) {
-          setImageUri(capturedUri);
-          console.log("Camera image captured:", capturedUri);
-        }
-      }
-    } catch (error) {
-      console.error("Error capturing image:", error);
-      Alert.alert("Error", "Failed to open camera.");
-    }
-  };
-  
 
-  const saveSelectedImage = async () => {
-    if (!imageUri) {
-      Alert.alert("No Image", "Please select or capture an image first.");
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setUri(result.assets[0].uri);
+        console.log("Image captured from camera:", result.assets[0].uri);
+      }
+    } else {
+      Alert.alert(
+        "Permission Denied",
+        "Camera permission is required to use the camera."
+      );
+    }
+  };
+
+  const saveImage = async () => {
+    if (!uri) {
+      Alert.alert("No image", "Please select or capture an image first.");
+      return;
+    }
+
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        "Please allow media library access to save images."
+      );
       return;
     }
 
     try {
-      const permission = await MediaLibrary.requestPermissionsAsync();
-      if (!permission.granted) {
-        Alert.alert(
-          "Permission Denied",
-          "Media library access is required to save images."
-        );
-        return;
-      }
-
-      await MediaLibrary.createAssetAsync(imageUri);
-      Alert.alert("Success", "Image successfully saved!");
-      console.log("Saved image URI:", imageUri);
+      await MediaLibrary.createAssetAsync(uri);
+      Alert.alert("Success", "Image saved to Pictures folder!");
+      console.log("Image saved:", uri);
     } catch (error) {
-      console.error("Error saving image:", error);
-      Alert.alert("Error", "Failed to save the image.");
+      Alert.alert("Error", "Failed to save image.");
+      console.error(error);
     }
   };
 
-  const floatAnimation = useRef(new Animated.Value(0)).current;
+  const getLocation = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        "Location permission is required to access your location."
+      );
+      return;
+    }
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnimation, {
-          toValue: -10,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatAnimation, {
-          toValue: 10,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, [floatAnimation]);
+    try {
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      const newLocation = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        timestamp: new Date(location.timestamp).toISOString(),
+      };
+
+      setLocationData((prevData) => [...prevData, newLocation]);
+      setLatestLocation(newLocation);
+      Alert.alert(
+        "Location Retrieved",
+        `Lat: ${newLocation.latitude}, Lon: ${newLocation.longitude}`
+      );
+      console.log("Location:", newLocation);
+    } catch (error) {
+      Alert.alert("Error", "Failed to retrieve location.");
+      console.error(error);
+    }
+  };
+
+  const saveToFile = async () => {
+    if (locationData.length === 0) {
+      Alert.alert("No Data", "Please retrieve some location data first.");
+      return;
+    }
+
+    const fileContent = locationData
+      .map(
+        (loc, index) =>
+          `#${index + 1} - Latitude: ${loc.latitude}, Longitude: ${
+            loc.longitude
+          }, Timestamp: ${loc.timestamp}`
+      )
+      .join("\n");
+
+    const fileName = "location_data.txt";
+
+    try {
+      // Minta izin akses ke penyimpanan eksternal di Android
+      if (Platform.OS === "android") {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "Storage permission is required.");
+          return;
+        }
+      }
+
+      // Tentukan lokasi file di penyimpanan eksternal Android (Download Directory)
+      const downloadDir = FileSystem.documentDirectory;
+      const fileUri = `${downloadDir}${fileName}`;
+
+      // Menyimpan file ke penyimpanan eksternal (gunakan MediaLibrary jika ingin)
+      await FileSystem.writeAsStringAsync(fileUri, fileContent, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      // Tampilkan alert dengan lokasi file
+      Alert.alert("File Saved", `File saved at: ${fileUri}`);
+      console.log("File saved to:", fileUri);
+    } catch (error) {
+      Alert.alert("Error", "Failed to save file.");
+      console.error(error);
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      <Animated.Text
-        style={[
-          styles.floatingText,
-          {
-            transform: [{ translateY: floatAnimation }],
-          },
-        ]}
-      >
-        Sharone Angelica J - 00000069637
-      </Animated.Text>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Select from Gallery"
-          onPress={pickImageFromGallery}
-          color="#1E90FF"
-        />
-        <Button
-          title="Take a Photo"
-          onPress={captureImageWithCamera}
-          color="#1E90FF"
-        />
-        <Button title="Save Image" onPress={saveSelectedImage} color="#1E90FF" />
-      </View>
-      {imageUri && (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Text>Edwin Fedora Lolo - 00000069568</Text>
+      <Button title="Open Gallery" onPress={openImagePicker} />
+      <Button title="Open Camera" onPress={handleCameraLaunch} />
+      <Button title="Save Image" onPress={saveImage} />
+      {uri ? (
         <Image
-          source={{ uri: imageUri }}
-          style={styles.imagePreview}
+          source={{ uri }}
+          style={{ width: 200, height: 200, marginTop: 20 }}
         />
+      ) : null}
+      <Button title="Get Location" onPress={getLocation} />
+      <Button title="Save to File" onPress={saveToFile} />
+
+      {latestLocation && (
+        <Text style={{ marginTop: 20 }}>
+          Latest Location: {"\n"}
+          Latitude: {latestLocation.latitude} {"\n"}
+          Longitude: {latestLocation.longitude} {"\n"}
+          Timestamp: {latestLocation.timestamp}
+        </Text>
       )}
     </View>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#121212",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  floatingText: {
-    color: "#ffffff",
-    fontSize: 18,
-    marginBottom: 20,
-    textAlign: "center",
-    textShadowColor: "#000000", // Shadow color
-    textShadowOffset: { width: 2, height: 2 }, // Shadow position
-    textShadowRadius: 3, // Shadow blur radius
-    fontWeight: "bold",
-  },
-  buttonContainer: {
-    width: "100%",
-    marginBottom: 20,
-  },
-  imagePreview: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-});
-
-export default App;
+}
