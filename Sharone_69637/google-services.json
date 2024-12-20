@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "582718430768",
+    "project_id": "tugas-crossplat",
+    "storage_bucket": "tugas-crossplat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:582718430768:android:5343ca7bb373c38e2857f5",
+        "android_client_info": {
+          "package_name": "tugas.crossplat_w11"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "582718430768-abc123def456.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tugas.crossplat_w11",
+            "certificate_hash": "ABCD1234EFGH5678IJKL9101MNOP2345QRST6789"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuDxWxlpdER2BaMhlFOv7g5khXInUQbSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
